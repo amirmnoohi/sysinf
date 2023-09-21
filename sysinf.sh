@@ -202,22 +202,22 @@ for iface in /sys/class/net/*; do
 done
 
 echo "Type:"
-for key in "${!types[@]}"; do
+for key in $(echo ${!types[@]} | tr ' ' '\n' | sort); do
     echo "     $key: ${types[$key]}"
 done
 
 echo "Speed:"
-for key in "${!speeds[@]}"; do
+for key in $(echo ${!speeds[@]} | tr ' ' '\n' | sort); do
     echo "     $key: ${speeds[$key]}"
 done
 
 echo "MAC:"
-for key in "${!macs[@]}"; do
+for key in $(echo ${!macs[@]} | tr ' ' '\n' | sort); do
     echo "     $key: ${macs[$key]}"
 done
 
 echo "IP Address:"
-for key in "${!ips[@]}"; do
+for key in $(echo ${!ips[@]} | tr ' ' '\n' | sort); do
     echo "     $key: ${ips[$key]}"
 done
 
