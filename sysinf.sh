@@ -120,7 +120,7 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
             size_in_gb = original_size * 1024;
         }
         
-        if (size_in_gb < 0.1) {
+        if (size_in_gb < 2) {
             next;
         }
 
@@ -152,7 +152,7 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
             type = substr(key, index(key, s[4]));  # Extract the type correctly
             
             count = disk[key];
-            print count "x " size " " model " " type;
+            print count " x " size "GB " model " " type;
         }
         print "\nTotal SATA-HDD Capacity: " sprintf("%.2f GB", total_sata_capacity+0);
         print "Total SSD Capacity: " sprintf("%.2f GB", total_ssd_capacity+0);
