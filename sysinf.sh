@@ -152,8 +152,7 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
             type = substr(key, index(key, s[4]));  # Extract the type correctly
             
             count = disk[key];
-            speed = "6GB/s ";
-            print count "x " size " " model " " speed type;
+            print count "x " size " " model " " type;
         }
         print "\nTotal SATA-HDD Capacity: " sprintf("%.2f GB", total_sata_capacity+0);
         print "Total SSD Capacity: " sprintf("%.2f GB", total_ssd_capacity+0);
