@@ -47,13 +47,13 @@ divider
 header "OS and Kernel Info"
 # Display OS name using ID
 OS_NAME=$(source /etc/os-release; echo $ID)
-echo "${YELLOW}OS Name:${NC} $OS_NAME"
+echo -e "${YELLOW}OS Name:${NC} $OS_NAME"
 # Display OS version
 OS_VERSION=$(source /etc/os-release; echo $VERSION_ID)
-echo "${YELLOW}OS Version:${NC} $OS_VERSION"
+echo -e "${YELLOW}OS Version:${NC} $OS_VERSION"
 # Display Kernel version
 KERNEL_VERSION=$(uname -r)
-echo "${YELLOW}Kernel Version:${NC} $KERNEL_VERSION"
+echo -e "${YELLOW}Kernel Version:${NC} $KERNEL_VERSION"
 
 divider
 
