@@ -98,7 +98,7 @@ divider
 # Disks
 header "Disks" 
 lsblk -d -o NAME,SIZE,MODEL | awk '
-    NR>1 {
+    NR>1 && !/^loop/ {
         original_size=$2;
         gsub(" ","", $3);
         model=$3;
@@ -153,7 +153,6 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
         print "Total SSD Capacity: " sprintf("%.2f GB", total_ssd_capacity+0);
         print "Total NVMe SSD Capacity: " sprintf("%.2f GB", total_nvme_capacity+0);
     }'
-
 
 divider
 
