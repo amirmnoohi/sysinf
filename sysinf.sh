@@ -80,41 +80,55 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
         gsub(" ","", $3);
         model=$3;
         
-        multiplier = 1;
+        size_in_gb = 0;
         if (index(original_size, "M") > 0) {
-            multiplier = 10^6;
+            gsub("[M]","",original_size);
+            size_in_gb = original_size / 1024;
         } else if (index(original_size, "G") > 0) {
-            multiplier = 10^9;
+            gsub("[G]","",original_size);
+            size_in_gb = original_size;
         } else if (index(original_size, "T") > 0) {
-            multiplier = 10^12;
+            gsub("[T]","",original_size);
+            size_in_gb = original_size * 1024;
         }
-        size = original_size;
-        gsub("[MGT]","",size);
         
-        if (size * multiplier < 100 * 10^6) {
+        if (size_in_gb < 0.1) {
             next;
         }
-        
-        disk[original_size " " model]++;
+
+        disk_name = "/sys/block/" $1 "/queue/rotational";
+        if ((getline rotational < disk_name) > 0) {
+            if ($1 ~ /^nvme/) {
+                type = "NVMe SSD";
+                total_nvme_capacity += size_in_gb;
+            } else if (rotational == 0) {
+                type = "SSD";
+                total_ssd_capacity += size_in_gb;
+            } else if (rotational == 1) {
+                type = "SATA HDD";
+                total_sata_capacity += size_in_gb;
+            } else {
+                type = "Unknown";
+            }
+        }
+        close(disk_name);
+
+        disk[sprintf("%.2f GB", size_in_gb) " " model " " type]++;
     } 
     END {
         for (key in disk) {
             split(key, s, " ");
             size = s[1];
             model = s[2];
+            type = s[3];
             count = disk[key];
             
             speed = "6GB/s";
-            if (index(model, "NVMe") > 0) {
-                type = "NVMe SSD";
-            } else if (index(model, "SSD") > 0) {
-                type = "SSD";
-            } else {
-                type = "SATA HDD";
-            }
-
             print count "x " size " " speed " " model " " type;
         }
+        print "\nTotal SATA HDD Capacity: " sprintf("%.2f GB", total_sata_capacity+0);
+        print "Total SSD Capacity: " sprintf("%.2f GB", total_ssd_capacity+0);
+        print "Total NVMe SSD Capacity: " sprintf("%.2f GB", total_nvme_capacity+0);
     }'
 
 
