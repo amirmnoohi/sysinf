@@ -122,13 +122,13 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
         disk_name = "/sys/block/" $1 "/queue/rotational";
         if ((getline rotational < disk_name) > 0) {
             if ($1 ~ /^nvme/) {
-                type = "NVMe SSD";
+                type = "SSD-NVME";
                 total_nvme_capacity += size_in_gb;
             } else if (rotational == 0) {
                 type = "SSD";
                 total_ssd_capacity += size_in_gb;
             } else if (rotational == 1) {
-                type = "SATA HDD";
+                type = "SATA-HDD";
                 total_sata_capacity += size_in_gb;
             } else {
                 type = "Unknown";
@@ -138,12 +138,12 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
         }
         close(disk_name);
 
-        key = sprintf("%.2f GB | %s | %s", size_in_gb, model, type);
+        key = sprintf("%.2f GB %s %s", size_in_gb, model, type);
         disk[key]++;
     } 
     END {
         for (key in disk) {
-            split(key, s, " | ");
+            split(key, s, " ");
             size = s[1];
             model = s[2];
             type = s[3] " " s[4]; # Combine the two parts for type
@@ -152,9 +152,9 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
             speed = "6GB/s";
             print count "x " size " " speed " " model " " type;
         }
-        print "\nTotal SATA HDD Capacity: " sprintf("%.2f GB", total_sata_capacity+0);
+        print "\nTotal SATA-HDD Capacity: " sprintf("%.2f GB", total_sata_capacity+0);
         print "Total SSD Capacity: " sprintf("%.2f GB", total_ssd_capacity+0);
-        print "Total NVMe SSD Capacity: " sprintf("%.2f GB", total_nvme_capacity+0);
+        print "Total SSD-NVME Capacity: " sprintf("%.2f GB", total_nvme_capacity+0);
     }'
 
 divider
