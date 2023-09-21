@@ -43,6 +43,20 @@ echo -e "${YELLOW}Computer Model:${NC} $MODEL"
 
 divider
 
+# OS and Kernel Info
+header "OS and Kernel Info"
+# Display OS name using ID
+OS_NAME=$(source /etc/os-release; echo $ID)
+echo "OS Name: $OS_NAME"
+# Display OS version
+OS_VERSION=$(source /etc/os-release; echo $VERSION_ID)
+echo "OS Version: $OS_VERSION"
+# Display Kernel version
+KERNEL_VERSION=$(uname -r)
+echo "Kernel Version: $KERNEL_VERSION"
+
+divider
+
 header "CPU Details"
 CPU=$(grep -m1 "model name" /proc/cpuinfo | cut -d ':' -f2 | sed 's/^[ \t]*//;s/[ \t]*$//')
 [[ -z "$CPU" ]] && CPU=$(lscpu | awk -F: '/Model name/ {print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//')
