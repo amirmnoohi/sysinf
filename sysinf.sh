@@ -70,17 +70,26 @@ divider
 # Memory
 header "Memory"
 MEM=$(sudo dmidecode -t memory | awk '
-    /Size: [0-9]+/ {
-        size=$2;
-        if ($3 == "MB") size/=1024;
+    BEGIN {
+        total = 0;
+        nb = 0;
+    }
+    /Size:/ && $2 ~ /^[0-9]+/ {
+        size = $2;
+        if ($3 == "MB") size /= 1024;
         total += size;
-        if (nb == 0) first_size = size;  # store the size of the first slot
+        sizes[nb] = size;
         nb++;
     }
-    /Type: DDR/ { if (!type) type=$2 }  # store DDR version (like DDR4)
-    /Speed:/ { if (!speed) speed=$2 }   # store frequency (like 2400 MHz)
+    /Type: DDR/ && !type { type = $2 }
+    /Speed:/ && $2 ~ /^[0-9]+/ && !speed { speed = $2 }
     END {
-        print total " GB (" nb " * " first_size " GB) " type " @ " speed " MHz ";
+        if (nb > 0) {
+            average_size = total / nb;
+            print total " GB (" nb " * " average_size " GB) " type " @ " speed " MT/s";
+        } else {
+            print "No memory modules installed.";
+        }
     }')
 echo -e "$MEM"
 
