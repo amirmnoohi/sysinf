@@ -163,28 +163,62 @@ divider
 
 # Network
 header "Network Interfaces"
+declare -A types speeds macs ips
+
 for iface in /sys/class/net/*; do
     if [ -d "$iface" ]; then
         iface_name=$(basename $iface)
         speed_file="$iface/speed"
         driver_link="$iface/device/driver/module"
+        
         if [ -e "$speed_file" ] && [ -L "$driver_link" ]; then
-            # Use cat with error suppression
-            speed=$(cat $speed_file 2>/dev/null)
             driver=$(basename $(readlink $driver_link))
-            # Check if speed contains a number
-            if ! [[ $speed =~ ^-?[0-9]+$ ]]; then
-                echo "$iface_name: Type: $driver, Speed: Invalid"
-                continue
-            fi
-            # Check for negative speed value
-            if [ "$speed" -lt 0 ]; then
-                echo "$iface_name: Type: $driver, Status: Down"
+            types["$iface_name"]=$driver
+
+            # Use cat with error suppression for speed
+            speed=$(cat $speed_file 2>/dev/null)
+            if [[ $speed =~ ^-?[0-9]+$ ]]; then
+                if [ "$speed" -ge 0 ]; then
+                    speeds["$iface_name"]="${speed} Mbps"
+                else
+                    speeds["$iface_name"]="Down"
+                fi
             else
-                echo "$iface_name: Type: $driver, Speed: $speed Mbps"
+                speeds["$iface_name"]="Invalid"
             fi
+
+            # Fetch MAC address
+            mac_address=$(cat $iface/address)
+            macs["$iface_name"]=$mac_address
+
+            # Fetch IP address
+            ip_address=$(ip -4 addr show $iface_name | grep 'inet ' | awk '{print $2}' | cut -d'/' -f1)
+            if [ -z "$ip_address" ]; then
+                ip_address="N/A"
+            fi
+            ips["$iface_name"]=$ip_address
         fi
     fi
+done
+
+echo "Type:"
+for key in "${!types[@]}"; do
+    echo "     $key: ${types[$key]}"
+done
+
+echo "Speed:"
+for key in "${!speeds[@]}"; do
+    echo "     $key: ${speeds[$key]}"
+done
+
+echo "MAC:"
+for key in "${!macs[@]}"; do
+    echo "     $key: ${macs[$key]}"
+done
+
+echo "IP Address:"
+for key in "${!ips[@]}"; do
+    echo "     $key: ${ips[$key]}"
 done
 
 divider
