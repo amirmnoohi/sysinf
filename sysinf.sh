@@ -138,12 +138,12 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
         }
         close(disk_name);
 
-        key = sprintf("%.2f GB %s %s", size_in_gb, model, type);
+        key = sprintf("%.2f GB | %s | %s", size_in_gb, model, type);
         disk[key]++;
     } 
     END {
         for (key in disk) {
-            split(key, s, " ");
+            split(key, s, " | ");
             size = s[1];
             model = s[2];
             type = s[3] " " s[4]; # Combine the two parts for type
