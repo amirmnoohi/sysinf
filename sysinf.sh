@@ -133,17 +133,20 @@ lsblk -d -o NAME,SIZE,MODEL | awk '
             } else {
                 type = "Unknown";
             }
+        } else {
+            type = "Unknown";
         }
         close(disk_name);
 
-        disk[sprintf("%.2f GB", size_in_gb) " " model " " type]++;
+        key = sprintf("%.2f GB %s %s", size_in_gb, model, type);
+        disk[key]++;
     } 
     END {
         for (key in disk) {
             split(key, s, " ");
             size = s[1];
             model = s[2];
-            type = s[3];
+            type = s[3] " " s[4]; # Combine the two parts for type
             count = disk[key];
             
             speed = "6GB/s";
