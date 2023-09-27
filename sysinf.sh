@@ -168,12 +168,23 @@ declare -A types speeds macs ips
 for iface in /sys/class/net/*; do
     if [ -d "$iface" ]; then
         iface_name=$(basename $iface)
+        
+        # Skip the loopback interface
+        if [ "$iface_name" == "lo" ]; then
+            continue
+        fi
+
         speed_file="$iface/speed"
         driver_link="$iface/device/driver/module"
         
         if [ -e "$speed_file" ]; then
             if [ -L "$driver_link" ]; then
                 driver=$(basename $(readlink $driver_link))
+            elif command -v ethtool &>/dev/null; then
+                driver=$(ethtool -i $iface_name | grep driver | awk '{print $2}')
+                if [ -z "$driver" ]; then
+                    driver="Unknown"
+                fi
             else
                 driver="Unknown"
             fi
@@ -224,5 +235,6 @@ echo "IP Address:"
 for key in $(echo ${!ips[@]} | tr ' ' '\n' | sort); do
     echo "     $key: ${ips[$key]}"
 done
+
 
 divider
