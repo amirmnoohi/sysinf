@@ -171,8 +171,12 @@ for iface in /sys/class/net/*; do
         speed_file="$iface/speed"
         driver_link="$iface/device/driver/module"
         
-        if [ -e "$speed_file" ] && [ -L "$driver_link" ]; then
-            driver=$(basename $(readlink $driver_link))
+        if [ -e "$speed_file" ]; then
+            if [ -L "$driver_link" ]; then
+                driver=$(basename $(readlink $driver_link))
+            else
+                driver="Unknown"
+            fi
             types["$iface_name"]=$driver
 
             # Use cat with error suppression for speed
