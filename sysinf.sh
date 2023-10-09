@@ -238,3 +238,33 @@ done
 
 
 divider
+
+# GPU Info
+header "GPU Details"
+# Check if nvidia-smi is installed and accessible
+if command -v nvidia-smi &> /dev/null
+then
+    # Get the number of GPUs in the system
+    NUM_GPUS=$(nvidia-smi --query-gpu=count --format=csv,noheader)
+
+    echo -e "${YELLOW}NVIDIA GPUs Detected: $NUM_GPUS${NC}"
+
+    # Loop through each GPU and display its details
+    for (( i=0; i<$NUM_GPUS; i++ ))
+    do
+        echo -e "${YELLOW}Details for GPU $i:${NC}"
+        # Display GPU name
+        GPU_NAME=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader --id=$i)
+        echo -e "     ${YELLOW}GPU Name:${NC} $GPU_NAME"
+        # Display GPU Driver Version
+        GPU_DRIVER=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader --id=$i)
+        echo -e "     ${YELLOW}Driver Version:${NC} $GPU_DRIVER"
+        # Display GPU Memory
+        GPU_MEMORY=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader --id=$i)
+        echo -e "     ${YELLOW}Total GPU Memory:${NC} $GPU_MEMORY"
+    done
+else
+    echo -e "${RED}No NVIDIA GPU Detected or nvidia-smi not installed.${NC}"
+fi
+
+divider
