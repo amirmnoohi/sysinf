@@ -23,7 +23,7 @@ header() {
 clear
 
 header "System Information Script"
-echo -e "${WHITE}Copyright (c) 2023 AMIRMNOOHI${NC}"
+echo -e "${WHITE}Copyright (c) 2024 AMIRMNOOHI${NC}"
 
 divider
 
